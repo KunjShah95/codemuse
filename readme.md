@@ -34,8 +34,32 @@ TL;DR – A “local agent” that turns natural language into safe, verified Go
 - [Build & Release](#-build--release)
 - [License](#-license)
 - [Contributing](#-contributing)
-📹 Demo
-Watch a 2‑minute video that demonstrates creating a web server from a single prompt and running it in a sandbox.
+## 📹 Demo
+
+CodeMuse is currently in active development. Once the core agent implementation is complete, we'll provide:
+
+- **2-minute video demo** showing the agent creating a web server from a single prompt
+- **Interactive examples** you can try locally
+- **Live playground** for testing different LLM providers
+- **Tutorial walkthroughs** for common development tasks
+
+### Try It Now (Current State)
+
+```bash
+# Clone and setup
+git clone https://github.com/KunjShah95/codemuse
+cd codemuse
+go mod tidy
+
+# Verify installation
+make test
+make config
+
+# Start with Docker Compose
+docker-compose up
+```
+
+**Coming Soon**: Full conversational AI coding assistant with sandbox execution!
 
 ✨ Why Go?
 
