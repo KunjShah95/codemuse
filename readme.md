@@ -10,31 +10,30 @@ CodeMuse is a self‑contained, Go‑based AI coding assistant that plugs into y
 
 TL;DR – A “local agent” that turns natural language into safe, verified Go code and documentation, all from the comfort of your editor or a tiny desktop app.
 
-📚 Table of Contents
-Demo
-Why Go?
-Core Concepts
-Architecture
-Features
-File Layout
-Prerequisites
-Local Setup
-Running the Agent
-Using the CLI
-Using the Desktop UI
-Extending CodeMuse
-Adding a New LLM Provider
-Implementing a New Tool
-Creating a New Persona
-Plugging a Vector Store
-Configuration
-Audit & Security
-Frequently Asked Questions
-Troubleshooting
-Testing
-Build & Release
-License
-Contributing
+## 📚 Table of Contents
+
+- [Demo](#-demo)
+- [Why Go?](#-why-go)
+- [Core Concepts](#-core-concepts)
+- [Architecture](#️-architecture)
+- [File Layout](#-file-layout)
+- [Prerequisites](#️-prerequisites)
+- [Local Setup](#-local-setup)
+- [Running the Agent](#-running-the-agent)
+- [Sample Conversation](#-sample-conversation)
+- [Extending CodeMuse](#-extending-codemuse)
+  - [Adding a New LLM Provider](#adding-a-new-llm-provider)
+  - [Implementing a New Tool](#implementing-a-new-tool)
+  - [Creating a New Persona](#creating-a-new-persona)
+  - [Plugging a Vector Store](#plugging-a-vector-store)
+- [Configuration](#️-configuration)
+- [Audit & Security](#️-audit--security)
+- [Frequently Asked Questions](#-faq)
+- [Troubleshooting](#-troubleshooting)
+- [Testing](#-testing)
+- [Build & Release](#-build--release)
+- [License](#-license)
+- [Contributing](#-contributing)
 📹 Demo
 Watch a 2‑minute video that demonstrates creating a web server from a single prompt and running it in a sandbox.
 
@@ -79,70 +78,154 @@ Watch a 2‑minute video that demonstrates creating a web server from a single p
 │   │  └───────┘        │  │  └───────────────┘ │ │
 │   └──────────────────────┴─────────────────┘ │
 └──────────────────────────────────────────────────┘
-📦 File Layout
-go-coding-agent/
-├─ cmd/
-│  ├─ agent/      # CLI binary (chat + tool exec)
-│  ├─ ui/         # Desktop GUI (Fyne)
-│  └─ web/        # Optional: Gin/HTMX web UI
+## 📦 File Layout
+
+```
+codemuse/
 ├─ internal/
-│  ├─ agent/      # Event loop, tool registry
-│  ├─ llm/        # Provider interface + OpenAI/Claude/Ollama stubs
-│  ├─ tools/      # read, edit, bash, upload, exec, etc.
-│  ├─ federation/ # Sub‑agents (Planner, Tester, DocGen)
-│  ├─ personas/   # Persona registry
-│  ├─ rag/        # Context builder + vector store abstraction
-│  ├─ storage/    # Audit DB + vector store client
-│  └─ config/     # Config loader (Viper)
-├─ Dockerfile
-├─ Makefile
-├─ .gitignore
-├─ README.md
-├─ go.mod
-└─ go.sum
-🛠️ Prerequisites
+│  └─ config/           # Configuration management with Viper
+├─ Dockerfile           # Container build configuration  
+├─ Makefile            # Build automation
+├─ config.yaml         # Default configuration file
+├─ docker-compose.yml  # Multi-service setup with Weaviate
+├─ go.mod              # Go module definition
+├─ go.sum              # Go module checksums
+├─ go.work             # Go workspace file
+└─ readme.md           # This documentation
 
-| Item | Minimum Version |
-|------|-----------------|
-| Go | 1.24+ |
-| Docker | 20.10+ (for sandboxed exec) |
-| (Optional) Weaviate | 23.3+ (or any vector store) |
-| (Optional) Node | 18+ (if you enable the web UI and install htmx assets) |
+**Note**: This is a foundational structure. Additional directories like `cmd/`, `tools/`, `llm/`, etc. will be added as the project develops.
+```
+## 🛠️ Prerequisites
 
-Tip – Use our devenv.sh script from the workshop repo for a ready-to-go dev environment that bundles all of the above.
+| Item | Minimum Version | Notes |
+|------|-----------------|-------|
+| Go | 1.24+ | Required for building and running the application |
+| Docker | 20.10+ | Optional - for sandboxed execution and vector store |
+| Git | 2.0+ | For cloning and version control |
 
-🚀 Local Setup
+**Optional Dependencies:**
+- **Weaviate** 23.3+ or **Chroma** - for vector store functionality
+- **Node.js** 18+ - if you plan to extend with web UI features
 
-# 1️⃣ Clone
+**API Keys** (choose one or more):
+- OpenAI API key for GPT models
+- Anthropic API key for Claude models  
+- Mistral API key for Mistral models
+- Or use Ollama for local models (no API key required)
 
-git clone https://github.com/yourorg/go-coding-agent
-cd go-coding-agent
+## 🚀 Local Setup
 
-# 2️⃣ Install dependencies
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/KunjShah95/codemuse
+cd codemuse
+```
 
+### Step 2: Install Dependencies
+```bash
 go mod tidy
+```
 
-# 3️⃣ Set environment variables
+### Step 3: Configure Environment
+Choose one of the following methods:
 
-export ANTHROPIC_API_KEY="your-claude-key"
-export OPENAI_API_KEY="your-openai-key"
-export MISTRAL_API_KEY="your-mistral-key"
+**Method A: Environment Variables**
+```bash
+# For OpenAI (recommended for beginners)
+export OPENAI_API_KEY="your-openai-key-here"
 
-# 4️⃣ (Optional) Start a vector DB
+# For Claude
+export ANTHROPIC_API_KEY="your-claude-key-here"
 
-docker run -d --name weaviate -p 8081:8080 semitechnologies/weaviate
+# For Mistral  
+export MISTRAL_API_KEY="your-mistral-key-here"
 
-# 5️⃣ Create a dev config (if you prefer YAML over env)
+# For local models (no API key needed)
+# Just use Ollama - see config.yaml
+```
 
-cat > config.yaml <<EOF
-provider: openai
-api_key: $OPENAI_API_KEY
-port: 8080
-EOF
+**Method B: Configuration File**
+Copy and customize the configuration:
+```bash
+cp config.yaml my-config.yaml
+# Edit my-config.yaml with your preferred settings
+```
 
-🔧 Running the Agent
+### Step 4: Verify Setup
+```bash
+# Check available commands
+make help
 
-CLI
+# View current configuration
+make config
+
+# Run tests to verify everything works
+make test
+```
+
+### Step 5: Optional - Start Vector Database
+If you want to use RAG (Retrieval-Augmented Generation) features:
+```bash
+# Using Docker Compose (recommended)
+docker-compose up weaviate -d
+
+# Or manually with Docker
+docker run -d --name weaviate -p 8081:8080 semitechnologies/weaviate:latest
+```
+
+## 🔧 Running the Agent
+
+**Current Status**: CodeMuse is in active development. The core architecture and configuration system are in place.
+
+### Available Commands
+
+```bash
+# View all available commands
+make help
+
+# Check current configuration
+make config
+
+# Run tests
+make test
+
+# Build (when agent is implemented)
+make build
+
+# Docker deployment
+docker-compose up
+```
+
+### Using Docker Compose (Recommended for Development)
+
+```bash
+# Start all services (agent + weaviate vector store)
+docker-compose up
+
+# Start just the vector store
+docker-compose up weaviate -d
+
+# View logs
+docker-compose logs -f agent
+```
+
+### Configuration Example
+
+The project includes a working `config.yaml` with Ollama setup:
+
+```yaml
+provider: ollama                # openai | claude | ollama | mistral | gemini
+port: 11434
+models:
+  assistant: "gpt-oss:20b"
+  planner:   "gpt-oss:20b"
+  critic:    "gpt-oss:20b"
+  evaluator: "gpt-oss:20b"
+  expert:    "gpt-oss:20b"
+  user:      "gpt-oss:20b"
+```
+
+**Coming Soon**: CLI and UI interfaces will be available as the implementation progresses.
 
 # start the conversation loop
 
@@ -169,7 +252,7 @@ go run cmd/ui/main.go
 
 Note – The UI uses a simple Fyne app; it can be turned into a web UI with Gin + HTMX (cmd/web/main.go).
 
-👩‍💻 Sample Conversation
+## 👩‍💻 Future: Sample Conversation
 User: Create a Go Gin HTTP router that responds “Hello, world!” to GET /hello
 Assistant: I’ll plan the steps. (Uses planner sub‑agent)
 Assistant (plan):
@@ -299,11 +382,11 @@ go build -o bin/ui ./cmd/ui
 
 # Build Docker image
 
-docker build -t ghcr.io/yourorg/codemuse:latest .
+docker build -t ghcr.io/kunjshah95/codemuse:latest .
 
 # Push to GitHub Container Registry
 
-docker push ghcr.io/yourorg/codemuse:latest
+docker push ghcr.io/kunjshah95/codemuse:latest
 📜 License
 MIT – see LICENSE.
 
