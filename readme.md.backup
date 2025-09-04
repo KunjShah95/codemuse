@@ -321,69 +321,17 @@ if err != nil { log.Fatal(err) }
 contextBuilder := rag.NewContextBuilder(vector)
 ```
 
-## ⚙️ Configuration
+⚙️ Configuration
 
-CodeMuse supports configuration through both environment variables and YAML configuration files.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| PROVIDER | openai | Backend model (openai, claude, ollama, mistral, gemini) |
+| API_KEY | – | API key for the selected provider. |
+| PORT | 8080 | HTTP port if you run the web UI (cmd/web). |
+| VECTOR_URL | – | Base URL of your vector store (Weaviate/Chroma). |
+| WORKSPACE | ./workspace | Root directory that the agent can read/write. |
 
-### Configuration Methods
-
-**Method 1: Environment Variables**
-```bash
-# Provider selection
-export PROVIDER=openai              # openai, claude, ollama, mistral, gemini
-
-# API Keys (choose based on provider)
-export OPENAI_API_KEY=sk-...
-export ANTHROPIC_API_KEY=sk-ant-...
-export MISTRAL_API_KEY=...
-
-# Optional settings
-export PORT=8080                    # Web UI port
-export VECTOR_URL=http://localhost:8081  # Vector store URL
-export WORKSPACE=./workspace        # Work directory
-```
-
-**Method 2: YAML Configuration**
-```yaml
-# config.yaml
-provider: ollama                    # or openai, claude, mistral, gemini
-port: 11434                        # API/UI port
-workspace: ./workspace             # Working directory
-
-# Model configuration
-models:
-  assistant: "gpt-oss:20b"
-  planner:   "gpt-oss:20b"
-  critic:    "gpt-oss:20b"
-  evaluator: "gpt-oss:20b"
-  expert:    "gpt-oss:20b"
-  user:      "gpt-oss:20b"
-
-# Vector store (optional)
-vector_store:
-  url: "http://localhost:8081"
-  type: "weaviate"                  # or chroma
-```
-
-### Configuration Options
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `provider` | `openai` | LLM provider (openai, claude, ollama, mistral, gemini) |
-| `api_key` | – | API key for the selected provider (not needed for Ollama) |
-| `port` | `8080` | HTTP port for web interface |
-| `workspace` | `./workspace` | Directory where the agent can read/write files |
-| `vector_url` | – | Base URL of your vector store (Weaviate/Chroma) |
-| `models.*` | – | Model names for different roles (assistant, planner, etc.) |
-
-### Loading Configuration
-
-CodeMuse uses [Viper](https://github.com/spf13/viper) for configuration management:
-1. Loads `config.yaml` if present
-2. Environment variables override YAML settings
-3. Environment variables use `CODEMUSE_` prefix
-
-**Example**: `CODEMUSE_PROVIDER=claude` overrides `provider: openai` in YAML.
+Tip – Store keys in a .env file and use dotenv or viper to load them.
 
 🛡️ Audit & Security
 Audit DB – every message is committed to a SQLite log (audit/audit.db).
