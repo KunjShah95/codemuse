@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  agent:
+    build: .
+    environment:
+      - LLM=ollama
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ./workspace:/workspace
+    ports:
+      - "8080:8080"
+  weaviate:
+    image: semitechnologies/weaviate
+    ports:
+      - "8081:8080"

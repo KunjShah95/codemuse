@@ -1,0 +1,9 @@
+provider: ollama                # openai | claude | ollama | mistral | gemini
+port: 11434
+models:
+  assistant: "gpt-oss:20b"
+  planner:   "gpt-oss:20b"
+  critic:    "gpt-oss:20b"
+  evaluator: "gpt-oss:20b"
+  expert:    "gpt-oss:20b"
+  user:      "gpt-oss:20b"
